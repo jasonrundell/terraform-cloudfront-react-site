@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "main": "build/index.js",
+  "license": "MIT",
+  "scripts": {
+    "first-run": "npm run install-prereqs && npm install && npm run create-app && npm run terraform-dev-init && npm run terraform-prod-init",
+    "install-prereqs": "npm install -g create-react-app",
+    "create-app": "create-react-app app",
+    "test-app": "cd app && npm test",
+    "start": "cd app && yarn start",
+    "clean": "rimraf ./app/build && rimraf ./app/build.zip",
+    "build": "cd app && npm run build && cd .. && npm run pack",
+    "pack": "cd ./app/build && cross-zip . ../build.zip",
+    "terraform-dev-init": "cd infrastructure/env-dev && terraform init",
+    "terraform-dev-show": "cd infrastructure/env-dev && terraform show",
+    "terraform-dev-plan": "cd infrastructure/env-dev && terraform get && terraform plan --var-file vars.tfvars",
+    "terraform-dev-apply": "cd infrastructure/env-dev && terraform get && terraform apply --var-file vars.tfvars",
+    "deploy-dev": "npm run clean && npm run build && npm run pack && aws s3 sync app/build s3://dev.codeblink.com",
+    "terraform-prod-init": "cd infrastructure/env-prod && terraform init",
+    "deploy-prod": "npm run clean && npm run build && npm run pack && aws s3 sync app/build s3://codeblink.com && aws cloudfront create-invalidation --distribution-id E25222FJ6U2HJK --paths /* && npm run terraform-apply"
+  },
+  "devDependencies": {
+    "copy": "^0.3.0",
+    "cross-zip-cli": "^1.0.0",
+    "rimraf": "^2.6.1"
+  }
+}
